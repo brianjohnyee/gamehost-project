@@ -1,0 +1,138 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var add_post_url = "{{=URL('api', 'add_post', user_signature=True)}}";
+    var get_post_list_url = "{{=URL('api', 'get_post_list')}}";
+    // Like callbacks.
+    var set_like_url = "{{=URL('api', 'set_like', user_signature=True)}}";
+    var get_likers_url = "{{=URL('api', 'get_likers')}}"
+    // Stars.
+    var set_replies_url = "{{=URL('api', 'set_replies')}}";
+    var get_replies_url = "{{=URL('api', 'get_replies')}}";
+    var get_title_reply_url = "{{=URL('api', 'get_title_reply', user_signature=True)}}";
+    var edit_reply_url = "{{=URL('api', 'edit_reply', user_signature=True)}}";
+    var set_stars_url = "{{=URL('api', 'set_stars', user_signature=True)}}";
+    var is_logged_in = {{='false' if auth.user is None else 'true'}};
+    var add_reply_url = "{{=URL('api', 'add_reply', user_signature=True)}}";
+    var get_reply_list_url = "{{=URL('api', 'get_post_list')}}";
+    var edit_post_url = "{{=URL('api', 'edit_post', user_signature=True)}}";
+    var get_title_url = "{{=URL('api', 'get_title', user_signature=True)}}";
+    var user_email_is = "{{='null' if auth.user is None else auth.user.email}}";
+    var set_join_url = "{{=URL('api', 'set_join', user_signature=True)}}";
+    var get_join_url = "{{=URL('api', 'get_join')}}"
+
+
+</script>
+{{end}}
+
+<div class="main_content">
+
+    <div id="vue-div" class="display:none">
+      <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+      <span  v-if="!seen">
+        <button id="show_form" v-on:click="show_form"> add post</button>
+      </span>
+      <!-- First, let's add a form to insert blog posts. -->
+      <span v-show="seen">
+      <div id="add_post" style="display:none">
+        <div class="container form_row">
+          <div class="label quarter">
+            Title:
+          </div>
+          <div class="form threequarters">
+            <input v-model="form_title" placeholder="Enter the post title"/>
+          </div>
+        </div>
+        <div class="container form_row">
+          <div class="label quarter">
+            Content:
+          </div>
+          <div class="form threequarters">
+            <textarea v-model="form_content" placeholder="Enter the content of your post"></textarea>
+          </div>
+        </div>
+        <div class="container form_row">
+          <div class="label quarter">
+            Date:
+          </div>
+          <div class="form threequarters">
+            <p> Click below to select date </p>
+            <input type="date" id="myDate" v-model="form_date" placeholder="click here"> 
+          </div>
+        </div>
+        <div class="container form_row">
+          <div class="label quarter">
+            Format:
+          </div>
+          <div class="form threequarters">
+            <input type="radio" id="BO3" value="Best of 3" v-model="form_format">
+            <label for="one">Best of 3</label>
+            <br>
+            <input type="radio" id="BO5" value="Best of 5" v-model="form_format">
+            <label for="two">Best of 5</label>
+            <br>
+            <input type="radio" id="BO7" value="Best of 7" v-model="form_format">
+            <label for="two">Best of 7</label>
+
+            <br>
+          </div>
+        </div>
+        <div class="container form_row"><div class="quarter"></div>
+          <div class="threequarters">
+            <div class="submit">
+              <button id="add-post" v-on:click="add_post">Submit</button>
+              <button id="test" v-on:click="test">hearthstone</button>
+            </div>
+          </div>
+        </div>
+      </div>
+</span>
+      <!-- Message in case there are no posts. -->
+      <div v-if="post_list.length === 0">There are no posts.</div>
+
+      <!-- We display the posts. -->
+      <div v-if="is_logged_in" id="post_list">
+        <div class="post_div" v-for="post in post_list">
+         <button v-on:click="tourney_details(post._idx)">Details</button>
+         <button v-on:click="join_post(post._idx)">Join</button>
+         <button v-on:click="show_joined(post._idx)">Participates/Contact</button>
+<!--          <button v-on:click="date_location(post._idx)">Date/Region</button>
+         <button v-on:click="tourney_format(post._idx)">Tournement Format</button> -->
+         <div v-if="post.tourney_details">
+          <div class="post_title">
+            <div> Hearthstone </div>
+            <div>Host: ${post.post_author}</div>
+            <div>${post.post_title}</div>
+            <div>${post.post_content}</div>
+          </div>
+<!--           <div class="post_title">${post.post_title}</div>
+          <div class="post_content">${post.post_content}</div> -->
+          <div class ="date_region">
+          <div> Date/time </div>
+          <div class="post_content">${post.post_date} </div>
+          </div>
+<!--           <div class="post_content">${post.post_format}</div> -->
+
+          <div class ="format">
+          <div> Format </div>
+          <div class="post_format">${post.post_format} </div>
+          </div>
+         </div>
+         <div v-if="post.join_post">
+           <button v-on:click="actually_join_post(post._idx)"><h1> JOIN THIS TOURNAMENT</h1></button>
+         </div>
+
+         <div v-if="post.show_joined"> 
+           <div v-for="joined in post._joined">
+                    ${joined}
+         </div>
+
+      </div>
+
+    </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>
