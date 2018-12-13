@@ -1,0 +1,417 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var add_post_url = "{{=URL('api', 'add_post', user_signature=True)}}";
+    var get_post_list_url = "{{=URL('api', 'get_post_list')}}";
+    // Like callbacks.
+    var set_like_url = "{{=URL('api', 'set_like', user_signature=True)}}";
+    var get_likers_url = "{{=URL('api', 'get_likers')}}"
+    // Stars.
+    var set_replies_url = "{{=URL('api', 'set_replies')}}";
+    var get_replies_url = "{{=URL('api', 'get_replies')}}";
+    var get_title_reply_url = "{{=URL('api', 'get_title_reply', user_signature=True)}}";
+    var edit_reply_url = "{{=URL('api', 'edit_reply', user_signature=True)}}";
+    var set_stars_url = "{{=URL('api', 'set_stars', user_signature=True)}}";
+    var is_logged_in = {{='false' if auth.user is None else 'true'}};
+    var add_reply_url = "{{=URL('api', 'add_reply', user_signature=True)}}";
+    var get_reply_list_url = "{{=URL('api', 'get_post_list')}}";
+    var edit_post_url = "{{=URL('api', 'edit_post', user_signature=True)}}";
+    var get_title_url = "{{=URL('api', 'get_title', user_signature=True)}}";
+    var user_email_is = "{{='null' if auth.user is None else auth.user.email}}";
+    var set_join_url = "{{=URL('api', 'set_join', user_signature=True)}}";
+    var get_join_url = "{{=URL('api', 'get_join')}}";
+    var show_match_info = "{{=URL('api', 'getMatches')}}";
+    var update_matches = "{{=URL('api', 'updateMatches')}}";
+
+
+</script>
+{{end}}
+
+<div class="main_content">
+
+      <head>
+        <link href="https://fonts.googleapis.com/css?family=Cabin|Unlock" rel="stylesheet">
+        <style>
+          body {
+            font-family: 'Unlock', serif;
+            font-family: 'Cabin', serif;
+            font-size: 16px;
+          }
+        </style>
+      </head>
+
+
+
+
+    <div id="vue-div" class="display:none">
+      <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+<div v-if="is_logged_in">
+      <span  v-if="!seen">
+        <button id="show_form" v-on:click="show_form"> Add Tournament</button>
+      </span>
+    </div>
+      <!-- First, let's add a form to insert blog posts. -->
+      <span v-show="seen">
+        <div id="add_post" style="display:none">
+          <div class="container form_row">
+            <div class="label quarter" style="color:black">
+              Game Title:
+            </div>
+<!--             This is where user puts in the post title -->
+            <div class="form threequarters">
+              <input class="testing123" v-model="form_title" placeholder="Enter the Game for your tournement"/>
+            </div>
+          </div>
+          <div class="container form_row">
+            <div class="label quarter" style="color:black">
+              Tournament Description:
+            </div>
+<!--             This is where user puts in the post content -->
+            <div class="form threequarters">
+              <textarea v-model="form_content" placeholder="Enter the Description of your tournement and any special rules "></textarea>
+            </div>
+          </div>
+          <div class="container form_row">
+            <div class="label quarter" style="color:black">
+              Date:
+            </div>
+<!--             This is where user selects the date -->
+            <div class="form threequarters" style="color:black">
+              <p> Click below to select date </p>
+              <input type="date" id="myDate" v-model="form_date" placeholder="click here">
+            </div>
+          </div>
+          <div class="container form_row">
+            <div class="label quarter"style="color:black">
+              Amount of players:
+            </div>
+            <div class="form threequarters">
+<!--               This is where user selects the format of tournement -->
+              <input type="radio" id="BO3" value="Best of 3" v-model="form_format">
+              <label style="color:black" for="one">4 People</label>
+              <br>
+              <input type="radio" id="BO5" value="Best of 5" v-model="form_format">
+              <label style="color:black" for="two">8 People</label>
+              <br>
+<!--               <input type="radio" id="BO7" value="Best of 7" v-model="form_format">
+              <label for="two">Best of 7</label>
+              <br> -->
+            </div>
+          </div>
+          <div class="container form_row"><div class="quarter"></div>
+            <div class="threequarters">
+              <div class="submit">
+                <button id="add-post" v-on:click="add_post">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </span>
+
+      <!-- Message in case there are no posts. -->
+      <div v-if="post_list.length === 0">There are no posts.</div>
+
+      <!-- We display the posts. -->
+      <div  id="post_list">
+        <div class="post_div" v-for="post in post_list">
+          <button v-on:click="tourney_details(post._idx)">Details</button>
+          <span v-if="is_logged_in">
+          <button v-on:click="join_post(post._idx)">Join</button>
+        </span>
+          <button v-on:click="show_joined(post._idx)">Participates/Contact</button>
+          <button v-on:click="matches_results(post._idx)">Comments/Post Result</button>
+          <button v-on:click="show_bracket(post._idx)">Show/Hide Bracket</button>
+       <div v-if="post.post_author == user_email_is">
+          <button v-on:click="load_match(post._idx)">Load Bracket</button>
+          <button v-on:click="update_match(post._idx)">Save Bracket</button>
+      </div>
+
+
+<!--           Detail button below -->
+          <div v-if="post.tourney_details">
+            <div class="post_title">
+              <div> Hearthstone </div>
+              <div>Host: ${post.post_author}</div>
+              <div>${post.post_title}</div>
+              <div>${post.post_content}</div>
+            </div>
+            <div class ="date_region">
+              <div> Date/time </div>
+              <div class="post_content">${post.post_date} </div>
+            </div>
+            <div class ="format">
+              <div> Format </div>
+              <div class="post_format">${post.post_format} </div>
+            </div>
+          </div>
+<!--           Detail button above -->
+
+<!--           Join post button below -->
+          <div v-if="post.join_post">
+            <button v-on:click="actually_join_post(post._idx)"><h1> JOIN THIS TOURNAMENT</h1></button>
+          </div>
+<!--           Join post button above -->
+
+<!--           Show who joined button below -->
+          <div v-if="post.show_joined">
+            <div v-for="joined in post._joined">
+              <div>
+                ${joined.user_email}
+              </div>
+            </div>
+          </div>
+<!--           Show who joined button above -->
+
+<!--           Matches button below -->
+          <div v-if="post.matches_results">
+            <button v-if="!post.showReply" v-on:click="showReply(post._idx)">Add / Show Reply</button>
+            <button v-if="post.showReply" v-on:click="hideReply(post._idx)">Hide Reply</button>
+            <div v-if="post.showReply" class="comment-section">
+              <br>
+              <button v-if="!post.addingReply" v-on:click="toggleAddingComment(post._idx)">Add Reply</button>
+              <div v-if="post.addingReply">
+                <textarea v-model="post.newReply"></textarea>
+                <button v-on:click="saveReply(post._idx); toggleAddingComment(post._idx);">Save</button>
+              </div>
+              <div v-if="post.replies.length > 0" v-for="replies in post.replies" class="reply">
+                <div> ${replies.reply_author} </div>
+                <div> ${ replies.reply_content } </div>
+              </div>
+            </div>
+          </div>
+
+          <main v-if="post.bracket == 'Best of 3'" class="tournament-4">
+            <ul class="round round-1">
+                <li class="spacer">&nbsp;</li>
+                <li class="game game-top winner" v-on:click="FourRoundRoundOnePairOne(post._idx, post.match_info.round1.round1.player1)" bracketDiv="1" nextDiv="3">${post.match_info.round1.round1.player1}</li>
+                <li class="game game-spacer">&nbsp;</li>
+                <li class="game game-bottom" v-on:click="FourRoundRoundOnePairOne(post._idx, post.match_info.round1.round1.player2)" bracketDiv="1" nextDiv="3">${post.match_info.round1.round1.player2}</li>
+
+                <li class="spacer">&nbsp;</li>
+
+                <li class="game game-top winner" v-on:click="FourRoundRoundOnePairTwo(post._idx, post.match_info.round1.round2.player1)" bracketDiv="2" nextDiv="4">${post.match_info.round1.round2.player1}</li>
+                <li class="game game-spacer">&nbsp;</li>
+                <li class="game game-bottom" v-on:click="FourRoundRoundOnePairTwo(post._idx, post.match_info.round1.round2.player2)" bracketDiv="2" nextDiv="4">${post.match_info.round1.round2.player2}</li>
+
+                <li class="spacer">&nbsp;</li>
+            </ul>
+            <ul class="round round-2">
+
+                <li class="spacer">&nbsp;</li>
+
+                <li class="game game-top winner"  v-on:click="FourRoundRoundTwoRoundThree(post._idx, post.match_info.round2.round1.player1)" bracketDiv="3" nextDiv="5" contenteditable="tue">
+                    ${post.match_info.round2.round1.player1}
+                </li>
+                <li class="game game-spacer">&nbsp;</li>
+                <li class="game game-bottom"  v-on:click="FourRoundRoundTwoRoundThree(post._idx, post.match_info.round2.round1.player2)" bracketDiv="4" nextDiv="5" contenteditable="true">
+                    ${post.match_info.round2.round1.player2}
+                </li>
+
+                <li class="spacer">&nbsp;</li>
+            </ul>
+            <ul class="round round-3">
+
+                <li class="spacer">&nbsp;</li>
+
+                <li class="game game-top winner" bracketDiv="5" contenteditable="true">
+                    ${post.match_info.round3}
+                </li>
+
+                <li class="spacer">&nbsp;</li>
+            </ul>
+          </main>
+
+          <main v-if="post.bracket == 'Best of 5'" class="tournament-8">
+            <ul class="round round-1">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner" v-on:click="EightRoundRoundOnePairOne(post._idx, post.match_info.round1.round1.player1)" >${post.match_info.round1.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom " v-on:click="EightRoundRoundOnePairOne(post._idx, post.match_info.round1.round1.player2)" >${post.match_info.round1.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner" v-on:click="EightRoundRoundOnePairTwo(post._idx, post.match_info.round1.round2.player1)" >${post.match_info.round1.round2.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom "  v-on:click="EightRoundRoundOnePairTwo(post._idx, post.match_info.round1.round2.player2)" >${post.match_info.round1.round2.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top "  v-on:click="EightRoundRoundOnePairThree(post._idx, post.match_info.round1.round3.player1)" >${post.match_info.round1.round3.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom winner"  v-on:click="EightRoundRoundOnePairThree(post._idx, post.match_info.round1.round3.player2)" >${post.match_info.round1.round3.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner" v-on:click="EightRoundRoundOnePairFour(post._idx, post.match_info.round1.round4.player1)" >${post.match_info.round1.round4.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom " v-on:click="EightRoundRoundOnePairFour(post._idx, post.match_info.round1.round4.player2)" >${post.match_info.round1.round4.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+            </ul>
+            <ul class="round round-2">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner" v-on:click="EightRoundRoundTwoPairOne(post._idx, post.match_info.round2.round1.player1)" >${post.match_info.round2.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom " v-on:click="EightRoundRoundTwoPairOne(post._idx, post.match_info.round2.round1.player2)" >${post.match_info.round2.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner" v-on:click="EightRoundRoundTwoPairTwo(post._idx, post.match_info.round2.round2.player1)" >${post.match_info.round2.round2.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom " v-on:click="EightRoundRoundTwoPairTwo(post._idx, post.match_info.round2.round2.player2)" >${post.match_info.round2.round2.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+            </ul>
+            <ul class="round round-3">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner"  v-on:click="EightRoundRoundThreePairOne(post._idx, post.match_info.round3.round1.player1)">${post.match_info.round3.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom "  v-on:click="EightRoundRoundThreePairOne(post._idx, post.match_info.round3.round1.player2)">${post.match_info.round3.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+            </ul>
+            <ul class="round round-4">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round4}</li>
+
+              <li class="spacer">&nbsp;</li>
+            </ul>
+        </main>
+
+        <main v-if="post.bracket == 'Best of 7'" class="tournament-16">
+          <ul class="round round-1">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round2.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round2.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top ">${post.match_info.round1.round3.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom winner">${post.match_info.round1.round3.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round4.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round4.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round5.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round5.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round6.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round6.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round7.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round7.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round1.round8.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round1.round8.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+          </ul>
+          <ul class="round round-2">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round2.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round2.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round2.round2.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round2.round2.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top ">${post.match_info.round2.round3.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom winner">${post.match_info.round2.round3.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top ">${post.match_info.round2.round4.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom winner">${post.match_info.round2.round4.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+          </ul>
+          <ul class="round round-3">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round3.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round3.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top ">${post.match_info.round3.round2.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom winner">${post.match_info.round3.round2.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+          </ul>
+          <ul class="round round-4">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round4.round1.player1}</li>
+              <li class="game game-spacer">&nbsp;</li>
+              <li class="game game-bottom ">${post.match_info.round4.round1.player2}</li>
+
+              <li class="spacer">&nbsp;</li>
+          </ul>
+          <ul class="round round-5">
+
+              <li class="spacer">&nbsp;</li>
+
+              <li class="game game-top winner">${post.match_info.round5}</li>
+
+              <li class="spacer">&nbsp;</li>
+          </ul>
+        </main>
+<!--           Matches button above -->
+
+<!--         below div is for v-for post in post_list -->
+        </div>
+<!--       below div is for if logged in -->
+
+      </div>
+
+
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

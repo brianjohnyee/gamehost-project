@@ -1,0 +1,201 @@
+/* line 1, ../sass/_main.scss */
+.colorful {
+  color: #bb8833;
+}
+
+main.white{
+background-image: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);}
+div.main_content{
+background-image: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);}
+
+/* line 5, ../sass/_main.scss */
+div.main_content {
+  padding: 16px;
+  background-color: #203041;
+}
+
+/* line 8, ../sass/_main.scss */
+div.main_content div.form_row {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+/* line 13, ../sass/_main.scss */
+/* Post row */
+div.main_content div.post_div {
+border-radius: 25px;
+  margin-left: 375px;
+  margin-bottom: 30px;
+  border: 1px black solid;
+  background-color: #1f3d5b;
+  padding: 30px;
+/*  padding: 4px;*/
+}
+
+/* line 18, ../sass/_main.scss */
+div.main_content div.post_div .post_title {
+  font-size: 120%;
+}
+
+/* line 22, ../sass/_main.scss */
+div.main_content i.changed {
+  color: #777777;
+}
+
+/* line 25, ../sass/_main.scss */
+div.main_content span.likers_list {
+  color: #7777cc;
+}
+
+div.main_content div.reply_title {
+  border: 5px black solid;
+}
+
+div.main_content div.reply {
+  margin: 4px;
+  border: 1px black solid;
+  padding: 4px;
+}
+
+div.hello {
+  color: green;
+}
+
+div.main_content div.post_title {
+  border-bottom: 1px black solid;
+  border-top: 1px black solid;
+}
+
+div.main_content div.date_region {
+  border-top: 1px black solid;
+}
+
+div.main_content div.format {
+  border-top: 1px black solid;
+}
+
+/* Game Icons */
+fieldset, img {
+  padding: 0;
+  border: none;
+  background: none;
+  width: 100px;
+}
+
+.btn, button, [type=button], [type=submit] {
+  background-color: #3d4752;
+  color: white;
+  font-family: 'Unlock', sans-serif;
+  font-size: 16px;
+}
+
+/* Css font styles */
+.css-selector {
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.gamebutton {
+  background-color: #321212;
+  color: white;
+  font-family: 'Unlock', sans-serif;
+  font-size: 16px;
+}
+
+/*
+ *  Bracket Layout css
+*/
+main {
+  display: flex;
+  flex-direction: row;
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 200px;
+  list-style: none;
+  padding: 0;
+}
+
+.round .spacer {
+  flex-grow: 1;
+}
+
+.round .spacer:first-child,
+.round .spacer:last-child {
+  flex-grow: .5;
+}
+
+.round .game-spacer {
+  flex-grow: 1;
+}
+
+/*
+ *  Bracket Styles
+*/
+body {
+  font-family: sans-serif;
+  font-size: small;
+  padding: 10px;
+  line-height: 1.4em;
+}
+
+li.game {
+  padding-left: 20px;
+}
+
+li.game.winner {
+  font-weight: bold;
+}
+
+li.game span {
+  float: right;
+  margin-right: 5px;
+}
+
+li.game-top {
+  border-bottom: 1px solid #aaa;
+}
+
+li.game-spacer {
+  border-right: 1px solid #aaa;
+  min-height: 40px;
+}
+
+li.game-bottom {
+  border-top: 1px solid #aaa;
+}
+
+@media screen and (max-width: 400px) {
+  .split {
+    width: 95%;
+    margin: 25px 2.5%;
+  }
+
+  .round {
+    width: 21%;
+  }
+
+  .current {
+    -webkit-flex-grow: 1;
+    -moz-flex-grow: 1;
+    flex-grow: 1;
+  }
+
+  .hero h1 {
+    font-size: 2.15em;
+    letter-spacing: 0;
+    margin: 0;
+  }
+
+
+  .hero p.intro {
+    font-size: 1.15em;
+    margin-bottom: -10px;
+  }
+
+  .round-details {
+    font-size: 90%;
+  }
+
